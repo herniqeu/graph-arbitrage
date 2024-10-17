@@ -1,0 +1,5 @@
+flask
+flask-socketio
+websocket-client
+requests
+python-dotenv==0.19.1

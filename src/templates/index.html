@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Arbitrage Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        #balance {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        #opportunities {
+            list-style-type: none;
+            padding: 0;
+        }
+        #opportunities li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Crypto Arbitrage Dashboard</h1>
+        <h2>Current Balance: <span id="balance"></span></h2>
+        <h2>Portfolio Evolution</h2>
+        <canvas id="portfolioChart"></canvas>
+        <h2>Top 5 Arbitrage Opportunities</h2>
+        <ul id="opportunities"></ul>
+    </div>
+
+    <script>
+        const socket = io();
+        let portfolioChart;
+
+        socket.on('update_data', function(data) {
+            // Update current balance
+            document.getElementById('balance').textContent = `$${data.balance.toFixed(2)}`;
+
+            // Update portfolio chart
+            updatePortfolioChart(data.balance_history);
+
+            // Update arbitrage opportunities
+            const opportunitiesList = document.getElementById('opportunities');
+            opportunitiesList.innerHTML = '';
+            data.top_opportunities.forEach((opp, index) => {
+                const li = document.createElement('li');
+                li.textContent = `${index + 1}. Profit: ${(opp.profit * 100).toFixed(2)}% - Cycle: ${opp.cycle.join(' -> ')}`;
+                opportunitiesList.appendChild(li);
+            });
+        });
+
+        function updatePortfolioChart(balanceHistory) {
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            
+            if (!portfolioChart) {
+                portfolioChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            label: 'Portfolio Value',
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'minute',
+                                    displayFormats: {
+                                        minute: 'HH:mm:ss'
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Time'
+                                }
+                            },
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Balance'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Update chart data
+            portfolioChart.data.datasets[0].data = balanceHistory.map(item => ({
+                x: item[0] * 1000, // Convert to milliseconds
+                y: item[1]
+            }));
+            portfolioChart.update();
+        }
+    </script>
+</body>
+</html>
