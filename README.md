@@ -48,47 +48,6 @@ The simulation assumes instant execution and no transaction fees. For each arbit
 2. Update the simulated balance `B`:
 B_new = B * (1 + p)
 
-## Project Structure
-
-```
-crypto_arbitrage/
-│
-├── app/
-│   ├── init.py
-│   ├── main.py
-│   ├── config.py
-│   │
-│   ├── api/
-│   │   ├── init.py
-│   │   └── binance_api.py
-│   │
-│   ├── models/
-│   │   ├── init.py
-│   │   └── exchange_graph.py
-│   │
-│   ├── services/
-│   │   ├── init.py
-│   │   ├── arbitrage.py
-│   │   └── websocket_handler.py
-│   │
-│   └── static/
-│       ├── css/
-│       │   └── styles.css
-│       └── js/
-│           └── dashboard.js
-│
-├── templates/
-│   └── index.html
-│
-├── tests/
-│   └── ...
-│
-├── .env
-├── .gitignore
-├── README.md
-└── requirements.txt
-```
-
 ## Setup and Running
 
 1. Clone the repository
@@ -111,7 +70,3 @@ The dashboard displays:
 - Current simulated balance
 - Portfolio value over time
 - Top 5 current arbitrage opportunities
-
-## License
-
-[MIT License](https://opensource.org/licenses/MIT)
